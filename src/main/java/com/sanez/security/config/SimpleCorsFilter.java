@@ -33,7 +33,7 @@ public class SimpleCorsFilter implements Filter {
                 "http://localhost:8000",
                 "http://0.0.0.0:8000",
                 "http://127.0.0.1:8000",
-                "http://nezapp.site/",
+                "https://nezapp.site",
                 frontendUrl
         );
 
