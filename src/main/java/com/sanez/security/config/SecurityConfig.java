@@ -27,23 +27,23 @@ public class SecurityConfig {
     private final AuthTokenFilter authTokenFilter;
     private final UserDetailsService userDetailsService;
 
-    public SecurityConfig(AuthEntryPointJwt unauthorizedHandler, AuthTokenFilter authTokenFilter, UserDetailsService userDetailsService) {
+    public SecurityConfig(AuthEntryPointJwt unauthorizedHandler, AuthTokenFilter authTokenFilter,
+                          UserDetailsService userDetailsService) {
         this.unauthorizedHandler = unauthorizedHandler;
         this.authTokenFilter = authTokenFilter;
         this.userDetailsService = userDetailsService;
     }
 
-    // Configura el AuthenticationManager para autenticar usuarios con UserDetailsService y PasswordEncoder.
+
     @Bean
     public AuthenticationManager authenticationManager() {
-        // Crea un proveedor de autenticación basado en DAO (base de datos).
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService); // Usa UserDetailsService para cargar usuarios.
-        authProvider.setPasswordEncoder(passwordEncoder()); // Usa BCrypt para validar contraseñas.
-        return new ProviderManager(List.of(authProvider)); // Devuelve el AuthenticationManager.
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return new ProviderManager(List.of(authProvider));
     }
 
-    // Configura la cadena de filtros de seguridad para HTTP.
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -54,20 +54,16 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir acceso público a Swagger
+
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
                                 "/api-docs/**").permitAll()
-                        // Permite acceso público a endpoints de autenticación
+                        .requestMatchers("/actuator/health").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
-                        // Requiere rol USER o ADMIN para endpoints de notas
                         .requestMatchers("/api/notas/**").hasAnyRole("USER", "ADMIN")
-                        // Requiere rol USER O ADMIN para endpoints de perfil
                         .requestMatchers("/api/perfiles/**").hasAnyRole("USER", "ADMIN")
-                        // Requiere rol ADMIN para gestión de usuarios
                         .requestMatchers("/api/usuarios/**").hasRole("ADMIN")
-                        // Requiere rol ADMIN para endpoints administrativos
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
-                        // Cualquier otro endpoint requiere autenticación
+
                         .anyRequest().authenticated()
                 );
 
@@ -75,7 +71,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Define el codificador de contraseñas (BCrypt).
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
