@@ -28,12 +28,12 @@ public class SimpleCorsFilter implements Filter {
 
         String origin = request.getHeader("Origin");
 
-        // Lista de orígenes permitidos (incluye variable de entorno)
+
         List<String> allowedOrigins = Arrays.asList(
                 "http://localhost:8000",
                 "http://0.0.0.0:8000",
                 "http://127.0.0.1:8000",
-                "https://ditract.github.io",
+                "http://nezapp.site/",
                 frontendUrl
         );
 
