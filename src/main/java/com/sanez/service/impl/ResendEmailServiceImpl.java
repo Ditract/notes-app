@@ -61,7 +61,7 @@ public class ResendEmailServiceImpl implements EmailService {
         log.info("Enviando email de verificación a: {}", destinatario);
 
         String asunto = "Verifica tu cuenta - Notas App";
-        String linkVerificacion = baseUrl + "verify.html?token=" + token;
+        String linkVerificacion = baseUrl + "/verify.html?token=" + token;
 
         Context context = new Context();
         context.setVariable("linkVerificacion", linkVerificacion);
@@ -100,7 +100,7 @@ public class ResendEmailServiceImpl implements EmailService {
         log.info("Enviando email de recuperación de contraseña a: {}", destinatario);
 
         String asunto = "Recuperación de contraseña - Notas App";
-        String linkReset = baseUrl + "reset-password.html?token=" + token;
+        String linkReset = baseUrl + "/reset-password.html?token=" + token;
 
         Context context = new Context();
         context.setVariable("linkReset", linkReset);
