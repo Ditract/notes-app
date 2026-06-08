@@ -18,6 +18,9 @@ public class NotaMapper {
         notaResponseDTO.setTitulo(nota.getTitulo());
         notaResponseDTO.setContenido(nota.getContenido());
         notaResponseDTO.setUsuarioId(nota.getUsuario().getId());
+        notaResponseDTO.setCreatedAt(nota.getCreatedAt());
+        notaResponseDTO.setUpdatedAt(nota.getUpdatedAt());
+        notaResponseDTO.setCategoria(nota.getCategoria());
 
         return notaResponseDTO;
 
@@ -30,6 +33,7 @@ public class NotaMapper {
         Nota nota = new Nota();
         nota.setTitulo(notaRequestDTO.getTitulo());
         nota.setContenido(notaRequestDTO.getContenido());
+        nota.setCategoria(notaRequestDTO.getCategoria());
 
         return nota;
     }
@@ -40,6 +44,9 @@ public class NotaMapper {
         }
         if(notaUpdateDTO.getContenido() != null){
             nota.setContenido(notaUpdateDTO.getContenido());
+        }
+        if(notaUpdateDTO.getCategoria() != null){
+            nota.setCategoria(notaUpdateDTO.getCategoria());
         }
 
     }

@@ -1,6 +1,6 @@
 # Notas App - API REST
 
-> API REST para gestión de notas personales.
+> Proyecto API REST para gestión de notas personales.
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://www.oracle.com/java/)

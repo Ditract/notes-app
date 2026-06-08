@@ -20,4 +20,7 @@ public class NotaRequestDTO {
     @NotBlank(message = "El contenido no puede estar vacío")
     @Size(max = 10000, message = "El contenido no puede superar las 1400 palabras.")
     private String contenido;
+
+    @Size(max = 50, message = "La categoría no puede superar los 50 caracteres")
+    private String categoria;
 }
