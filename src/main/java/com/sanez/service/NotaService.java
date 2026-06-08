@@ -1,5 +1,6 @@
 package com.sanez.service;
 
+import com.sanez.dto.nota.EstadisticasResponseDTO;
 import com.sanez.dto.nota.NotaRequestDTO;
 import com.sanez.dto.nota.NotaResponseDTO;
 import com.sanez.dto.nota.NotaUpdateDTO;
@@ -11,4 +12,9 @@ public interface NotaService {
     List<NotaResponseDTO> obtenerNotasPorUsuario();
     NotaResponseDTO editarNota(Long notaId, NotaUpdateDTO notaUpdateDTO);
     void eliminarNota(Long notaId);
+    List<NotaResponseDTO> buscarNotas(String keyword);
+    List<NotaResponseDTO> obtenerNotasRecientes(int limit);
+    List<NotaResponseDTO> obtenerNotasPorCategoria(String categoria);
+    EstadisticasResponseDTO obtenerEstadisticas();
+    List<NotaResponseDTO> obtenerNotasFavoritas();
 }

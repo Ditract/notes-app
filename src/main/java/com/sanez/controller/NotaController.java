@@ -1,5 +1,6 @@
 package com.sanez.controller;
 
+import com.sanez.dto.nota.EstadisticasResponseDTO;
 import com.sanez.dto.nota.NotaRequestDTO;
 import com.sanez.dto.nota.NotaResponseDTO;
 import com.sanez.dto.nota.NotaUpdateDTO;
@@ -85,5 +86,57 @@ public class NotaController {
     public ResponseEntity<Void> eliminarNota(@PathVariable Long id) {
         notaService.eliminarNota(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Buscar notas", description = "Busca notas que contienen la keyword en título o contenido")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notas encontradas exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @GetMapping("/buscar")
+    public ResponseEntity<List<NotaResponseDTO>> buscarNotas(@RequestParam String q) {
+        return ResponseEntity.ok(notaService.buscarNotas(q));
+    }
+
+    @Operation(summary = "Notas recientes", description = "Obtiene las últimas N notas ordenadas por fecha de creación")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notas recientes obtenidas exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @GetMapping("/recientes")
+    public ResponseEntity<List<NotaResponseDTO>> obtenerNotasRecientes(
+            @RequestParam(defaultValue = "10") int limit) {
+        return ResponseEntity.ok(notaService.obtenerNotasRecientes(limit));
+    }
+
+    @Operation(summary = "Notas por categoría", description = "Filtra notas por categoría")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notas filtradas exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @GetMapping("/categoria/{categoria}")
+    public ResponseEntity<List<NotaResponseDTO>> obtenerNotasPorCategoria(@PathVariable String categoria) {
+        return ResponseEntity.ok(notaService.obtenerNotasPorCategoria(categoria));
+    }
+
+    @Operation(summary = "Estadísticas", description = "Obtiene estadísticas de las notas del usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estadísticas obtenidas exitosamente",
+                    content = @Content(schema = @Schema(implementation = EstadisticasResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @GetMapping("/estadisticas")
+    public ResponseEntity<EstadisticasResponseDTO> obtenerEstadisticas() {
+        return ResponseEntity.ok(notaService.obtenerEstadisticas());
+    }
+
+    @Operation(summary = "Notas favoritas", description = "Obtiene las notas marcadas como favoritas en el perfil")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Notas favoritas obtenidas exitosamente"),
+            @ApiResponse(responseCode = "401", description = "No autenticado")
+    })
+    @GetMapping("/favoritas")
+    public ResponseEntity<List<NotaResponseDTO>> obtenerNotasFavoritas() {
+        return ResponseEntity.ok(notaService.obtenerNotasFavoritas());
     }
 }
