@@ -17,6 +17,7 @@ import com.sanez.repository.PerfilRepository;
 import com.sanez.repository.UsuarioRepository;
 import com.sanez.security.service.CustomUserDetails;
 import com.sanez.service.NotaService;
+import com.sanez.service.PerfilService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,11 +32,18 @@ public class NotaServiceImpl implements NotaService {
     private final NotaRepository notaRepository;
     private final UsuarioRepository usuarioRepository;
     private final PerfilRepository perfilRepository;
+    private final PerfilService perfilService;
 
-    public NotaServiceImpl(NotaRepository notaRepository, UsuarioRepository usuarioRepository, PerfilRepository perfilRepository) {
+    public NotaServiceImpl(
+            NotaRepository notaRepository,
+            UsuarioRepository usuarioRepository,
+            PerfilRepository perfilRepository,
+            PerfilService perfilService
+    ) {
         this.notaRepository = notaRepository;
         this.usuarioRepository = usuarioRepository;
         this.perfilRepository = perfilRepository;
+        this.perfilService = perfilService;
     }
 
     // Crear nota
@@ -86,6 +94,7 @@ public class NotaServiceImpl implements NotaService {
         Long usuarioId = obtenerIdUsuarioAutenticado();
         Nota nota = obtenerNotaValidaParaUsuario(notaId, usuarioId);
 
+        perfilService.removerNotaFavorita(notaId);
         notaRepository.delete(nota);
     }
 
@@ -147,7 +156,7 @@ public class NotaServiceImpl implements NotaService {
         }
 
         Perfil perfil = perfilRepository.findByUsuarioId(usuarioId).orElse(null);
-        long totalFavoritas = (perfil != null) ? perfil.getNotasFavoritas().size() : 0;
+        long totalFavoritas = resolverNotasFavoritasExistentes(usuarioId, perfil).size();
 
         List<Nota> notasOrdenadas = notaRepository.findByUsuarioIdOrderByCreatedAtDesc(usuarioId);
         LocalDateTime notaMasReciente = notasOrdenadas.isEmpty() ? null : notasOrdenadas.get(0).getCreatedAt();
@@ -165,13 +174,7 @@ public class NotaServiceImpl implements NotaService {
         Perfil perfil = perfilRepository.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("Perfil no encontrado para el usuario"));
 
-        List<Long> notasFavoritasIds = perfil.getNotasFavoritas();
-        if (notasFavoritasIds.isEmpty()) {
-            return List.of();
-        }
-
-        return notaRepository.findAllById(notasFavoritasIds).stream()
-                .filter(nota -> nota.getUsuario().getId().equals(usuarioId))
+        return resolverNotasFavoritasExistentes(usuarioId, perfil).stream()
                 .map(NotaMapper::toResponseDTO)
                 .toList();
     }
@@ -199,5 +202,15 @@ public class NotaServiceImpl implements NotaService {
         }
 
         return nota;
+    }
+
+    private List<Nota> resolverNotasFavoritasExistentes(Long usuarioId, Perfil perfil) {
+        if (perfil == null || perfil.getNotasFavoritas().isEmpty()) {
+            return List.of();
+        }
+
+        return notaRepository.findAllById(perfil.getNotasFavoritas()).stream()
+                .filter(nota -> nota.getUsuario().getId().equals(usuarioId))
+                .toList();
     }
 }

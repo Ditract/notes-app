@@ -23,13 +23,16 @@ public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
     private final TemplateEngine templateEngine;
+    private final String baseUrl;
 
-    @Value("${app.base-url}")
-    private String baseUrl;
-
-    public EmailServiceImpl(JavaMailSender mailSender, TemplateEngine templateEngine) {
+    public EmailServiceImpl(
+            JavaMailSender mailSender,
+            TemplateEngine templateEngine,
+            @Value("${app.base-url}") String baseUrl) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
+        this.baseUrl = baseUrl;
+        log.info("EmailServiceImpl (dev) inicializado. app.base-url = {}", baseUrl);
     }
 
     @Override
@@ -38,6 +41,7 @@ public class EmailServiceImpl implements EmailService {
 
         String asunto = "Verifica tu cuenta - Notas App";
         String linkVerificacion = baseUrl + "/verify.html?token=" + token;
+        log.info("Link de verificación generado: {}", linkVerificacion);
 
         Context context = new Context();
         context.setVariable("linkVerificacion", linkVerificacion);
@@ -67,6 +71,7 @@ public class EmailServiceImpl implements EmailService {
 
         String asunto = "Recuperación de contraseña - Notas App";
         String linkReset = baseUrl + "/reset-password.html?token=" + token;
+        log.info("Link de recuperación generado: {}", linkReset);
 
         Context context = new Context();
         context.setVariable("linkReset", linkReset);
