@@ -10,6 +10,7 @@ import com.sanez.repository.NotaRepository;
 import com.sanez.repository.PerfilRepository;
 import com.sanez.repository.UsuarioRepository;
 import com.sanez.security.service.CustomUserDetails;
+import com.sanez.service.PerfilService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -42,6 +43,9 @@ class NotaServiceTest {
 
     @Mock
     private PerfilRepository perfilRepository;
+
+    @Mock
+    private PerfilService perfilService;
 
     @InjectMocks
     private NotaServiceImpl notaService;
@@ -234,6 +238,7 @@ class NotaServiceTest {
         when(notaRepository.countByUsuarioIdAndCategoria(USUARIO_ID, CategoriaConstantes.REUNIONES)).thenReturn(1L);
         when(notaRepository.countByUsuarioIdAndCategoria(USUARIO_ID, CategoriaConstantes.TAREAS)).thenReturn(0L);
         when(perfilRepository.findByUsuarioId(USUARIO_ID)).thenReturn(Optional.of(perfil));
+        when(notaRepository.findAllById(List.of(1L, 2L))).thenReturn(List.of(notaReciente, notaAntigua));
         when(notaRepository.findByUsuarioIdOrderByCreatedAtDesc(USUARIO_ID)).thenReturn(List.of(notaReciente, notaAntigua));
 
         // Act
@@ -246,6 +251,41 @@ class NotaServiceTest {
         assertEquals(2L, resultado.getTotalFavoritas());
         assertNotNull(resultado.getNotaMasReciente());
         assertNotNull(resultado.getNotaMasAntigua());
+    }
+
+    @Test
+    @DisplayName("obtenerEstadisticas - Ignora IDs de favoritas huérfanos")
+    void obtenerEstadisticas_ignoraFavoritasHuerfanas() {
+        Perfil perfil = new Perfil();
+        perfil.setId(1L);
+        perfil.setNotasFavoritas(new ArrayList<>(List.of(1L, 2L, 99L)));
+
+        Nota nota1 = crearNota(1L, "Favorita 1", "Contenido");
+        Nota nota2 = crearNota(2L, "Favorita 2", "Contenido");
+
+        when(notaRepository.countByUsuarioId(USUARIO_ID)).thenReturn(2L);
+        for (String cat : CategoriaConstantes.TODAS) {
+            when(notaRepository.countByUsuarioIdAndCategoria(USUARIO_ID, cat)).thenReturn(0L);
+        }
+        when(perfilRepository.findByUsuarioId(USUARIO_ID)).thenReturn(Optional.of(perfil));
+        when(notaRepository.findAllById(List.of(1L, 2L, 99L))).thenReturn(List.of(nota1, nota2));
+        when(notaRepository.findByUsuarioIdOrderByCreatedAtDesc(USUARIO_ID)).thenReturn(List.of(nota1, nota2));
+
+        EstadisticasResponseDTO resultado = notaService.obtenerEstadisticas();
+
+        assertEquals(2L, resultado.getTotalFavoritas());
+    }
+
+    @Test
+    @DisplayName("eliminarNota - Remueve la nota de favoritas antes de borrarla")
+    void eliminarNota_remueveDeFavoritas() {
+        Nota nota = crearNota(1L, "Nota a eliminar", "Contenido");
+        when(notaRepository.findById(1L)).thenReturn(Optional.of(nota));
+
+        notaService.eliminarNota(1L);
+
+        verify(perfilService).removerNotaFavorita(1L);
+        verify(notaRepository).delete(nota);
     }
 
     // ==================== TESTS DE NOTAS FAVORITAS ====================
