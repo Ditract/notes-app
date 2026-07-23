@@ -35,6 +35,7 @@ public class SimpleCorsFilter implements Filter {
                 "https://nezapp.site",
                 "http://nezapp.site",
                 "http://localhost:4200",
+                "https://beautiful-malasada-639568.netlify.app",
                 frontendUrl
         );
 
